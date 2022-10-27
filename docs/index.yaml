@@ -1,0 +1,18 @@
+apiVersion: v1
+entries:
+  k8s-telegram-sender:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2022-10-27T20:47:00.114703921+03:00"
+    description: A Helm chart for Kubernetes
+    digest: 0b5f7ea8cfd1a0be1260d290955922ba40eb9549c3b8fbc3a9c0c7a6b5c97cee
+    home: https://github.com/danuk/k8s-telegram-sender
+    maintainers:
+    - email: mail@danuk.ru
+      name: danuk
+    name: k8s-telegram-sender
+    type: application
+    urls:
+    - https://danuk.github.io/k8s-telegram-sender/k8s-telegram-sender-0.0.1.tgz
+    version: 0.0.1
+generated: "2022-10-27T20:47:00.113934538+03:00"

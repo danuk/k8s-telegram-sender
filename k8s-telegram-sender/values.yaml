@@ -1,0 +1,147 @@
+# Default values for k8s-telegram-sender.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+config:
+  my-elastalert:
+    chat_id: "-1234567890"
+    token: "123456789:aacccccdddfff"
+    template: "elastalert"
+
+  my-promalert:
+    chat_id: "-1234567890"
+    token: "123456789:aacccccdddfff"
+    template: "promalert"
+
+  my-gitlab:
+    chat_id: "-1234567890"
+    token: "123456789:aacccccdddfff"
+    template: "gitlab_push_events"
+
+
+templates:
+  default: |-
+    {{ data }}
+
+  elastalert: |-
+    {%- for key, value in data | dictsort -%}
+    *{{ key }}:* `{{ value }}`
+    {% endfor %}
+
+  promalert: |-
+    {%- set exclude_labels=[
+        'send_to_telegram',
+        'kubernetes_name',
+        'kubernetes_namespace',
+        'kubernetes_node',
+        'role',
+        'job',
+        'instance',
+        'app',
+        'app_kubernetes_io_managed_by',
+        'app_kubernetes_io_instance',
+        'app_kubernetes_io_name',
+        'helm_sh_chart',
+        'alertname',
+        'severity',
+        ]
+    -%}
+    {% for alert in data['alerts'] %}
+    {% if data['status']=='firing' %}🔥{% else %}✅{% endif %} {{ alert['annotations']['description'] }}
+    {%- if alert['annotations']['summary'] %}
+    {{ alert['annotations']['summary'] -}}
+    {% endif %}
+    {%- for key, value in alert['labels'] | dictsort %}
+    {%- if key not in exclude_labels %}
+    *{{ key }}:* `{{ value }}`
+    {%- endif -%}
+    {% endfor %}
+    {% endfor %}
+
+  gitlab_push_events: |-
+    {%- set counter = namespace(added=0, modified=0, removed=0) -%}
+    {%- set branch = data.ref | replace("refs/heads/","") -%}
+    *{{ data.user_name }}* pushed to [{{ data.project.path_with_namespace }}/{{ branch }}]({{data.project.web_url}}/-/tree/{{ branch|urlencode }})
+
+    {%- for commit in data['commits'] %}
+    {% if data.total_commits_count > 1 %}*{{ commit.author.name }}: *{% endif %}[{{ commit.title }}]({{ commit.url }})
+    {%- set counter.added = counter.added + commit.added|length -%}
+    {%- set counter.modified = counter.modified + commit.modified|length -%}
+    {%- set counter.removed = counter.removed + commit.removed|length -%}
+    {% endfor %}
+
+    {% if counter.modified %}{{ counter.modified }} files modified {% endif -%}
+    {% if counter.added %}{{ counter.added }} added {% endif -%}
+    {% if counter.removed %}{{ counter.removed }} removed {% endif -%}
+
+
+replicaCount: 1
+
+image:
+  repository: danuk/telegram-sender
+  pullPolicy: IfNotPresent
+  tag: "0.0.1"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

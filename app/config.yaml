@@ -1,0 +1,15 @@
+my-elastalert:
+  chat_id: "-1234567890"
+  token: "123456789:aacccccdddfff"
+  template: "elastalert"
+
+my-promalert:
+  chat_id: "-1234567890"
+  token: "123456789:aacccccdddfff"
+  template: "promalert"
+
+my-gitlab:
+  chat_id: "-1234567890"
+  token: "123456789:aacccccdddfff"
+  template: "gitlab_push_events"
+

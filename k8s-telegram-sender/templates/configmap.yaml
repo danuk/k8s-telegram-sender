@@ -1,0 +1,19 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config
+data:
+  config.yaml: |-
+{{ .Values.config | toYaml | indent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: templates
+data:
+{{- range $file, $template := .Values.templates }}
+  {{ $file }}.tpl: |-
+{{ $template | indent 4 }}
+{{- end }}
+
