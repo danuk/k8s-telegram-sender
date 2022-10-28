@@ -8,3 +8,12 @@ home: https://github.com/danuk/k8s-telegram-sender
 maintainers:
   - name: danuk
     email: mail@danuk.ru
+annotations:
+  category: Infrastructure
+keywords:
+  - telegram
+  - elasticsearch
+  - elastalert
+  - prometheus
+  - alertmanager
+  - gitlab
